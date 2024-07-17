@@ -3,6 +3,7 @@ package com.francisco.brain.controller;
 
 import com.francisco.brain.dto.ActionDTO;
 import com.francisco.brain.dto.DayDTO;
+import com.francisco.brain.dto.NewActionDTO;
 import com.francisco.brain.service.DayService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +34,14 @@ public class DayController {
   }
 
   // Add a new action to a specific day
-  @PostMapping("/{dayId}")
+  @PostMapping()
   public ResponseEntity<ActionDTO> addAction(
-          @PathVariable Long publicId,
-          @PathVariable Long dayId,
+          @PathVariable String publicId,
           @RequestParam LocalDate date,
-          @RequestBody ActionDTO actionDTO) {
-    ActionDTO createdAction = dayService.addAction(publicId, dayId, date, actionDTO);
+          @RequestBody NewActionDTO newActionDTO) {
+    System.out.println("add action: ");
+    System.out.println(date.toString());
+    ActionDTO createdAction = dayService.addAction(publicId, date, newActionDTO);
     return new ResponseEntity<>(createdAction, HttpStatus.CREATED);
   }
 

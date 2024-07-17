@@ -2,6 +2,7 @@ package com.francisco.brain.service;
 
 import com.francisco.brain.dto.ActionDTO;
 import com.francisco.brain.dto.DayDTO;
+import com.francisco.brain.dto.NewActionDTO;
 import com.francisco.brain.entity.ActionEntity;
 import com.francisco.brain.entity.DayEntity;
 import com.francisco.brain.entity.UserEntity;
@@ -41,9 +42,10 @@ public class DayService {
     return days;
   }
 
-  public ActionDTO addAction(Long publicId, Long dayId, LocalDate date, ActionDTO actionDTO) {
-    DayEntity dayEntity = dayRepository.findByIdAndUserId(dayId, publicId).orElseGet(() -> {
-      UserEntity userEntity = userRepository.findById(publicId).orElseThrow(() -> new RuntimeException("User not found"));
+  public ActionDTO addAction(String publicId, LocalDate date, NewActionDTO actionDTO) {
+    UserEntity userEntity = userRepository.findByPublicId(publicId).orElseThrow(() -> new RuntimeException("User not found"));
+    DayEntity dayEntity = dayRepository.findByDateAndUserId(date, userEntity.getId()).orElseGet(() -> {
+      //UserEntity userEntity = userRepository.findByPublicId(publicId).orElseThrow(() -> new RuntimeException("User not found"));
       DayEntity newDay = new DayEntity();
       newDay.setUser(userEntity);
       newDay.setDate(date);
