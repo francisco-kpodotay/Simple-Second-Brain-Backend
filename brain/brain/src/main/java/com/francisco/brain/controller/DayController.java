@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/day")
+@RequestMapping("/api/day/{publicId}")
 public class DayController {
 
   private final DayService dayService;
@@ -23,7 +23,7 @@ public class DayController {
   }
 
   // Get DayEntities within a given range of dates
-  @GetMapping("/{publicId}")
+  @GetMapping()
   public ResponseEntity<List<DayDTO>> getDaysInRange(
           @PathVariable Long publicId,
           @RequestParam LocalDate startDate,
@@ -33,17 +33,18 @@ public class DayController {
   }
 
   // Add a new action to a specific day
-  @PostMapping("/{publicId}/action")
+  @PostMapping("/{dayId}")
   public ResponseEntity<ActionDTO> addAction(
           @PathVariable Long publicId,
           @PathVariable Long dayId,
+          @RequestParam LocalDate date,
           @RequestBody ActionDTO actionDTO) {
-    ActionDTO createdAction = dayService.addAction(publicId, dayId, actionDTO);
+    ActionDTO createdAction = dayService.addAction(publicId, dayId, date, actionDTO);
     return new ResponseEntity<>(createdAction, HttpStatus.CREATED);
   }
 
   // Update an action
-  @PutMapping("/{publicId}/{dayId}/{actionId}")
+  @PutMapping("/{dayId}/{actionId}")
   public ResponseEntity<ActionDTO> updateAction(
           @PathVariable Long publicId,
           @PathVariable Long dayId,
@@ -55,7 +56,7 @@ public class DayController {
   }
 
   // Delete an action
-  @DeleteMapping("/{publicId}/{dayId}/{actionId}")
+  @DeleteMapping("/{dayId}/{actionId}")
   public ResponseEntity<Void> deleteAction(
           @PathVariable Long publicId,
           @PathVariable Long dayId,

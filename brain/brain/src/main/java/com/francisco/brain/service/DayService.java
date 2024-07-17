@@ -4,6 +4,7 @@ import com.francisco.brain.dto.ActionDTO;
 import com.francisco.brain.dto.DayDTO;
 import com.francisco.brain.entity.ActionEntity;
 import com.francisco.brain.entity.DayEntity;
+import com.francisco.brain.entity.UserEntity;
 import com.francisco.brain.repository.ActionRepository;
 import com.francisco.brain.repository.DayRepository;
 import com.francisco.brain.repository.UserRepository;
@@ -40,11 +41,20 @@ public class DayService {
     return days;
   }
 
-  public ActionDTO addAction(Long userId, Long dayId, ActionDTO actionDTO) {
-    DayEntity dayEntity = dayRepository.findByIdAndUserId(dayId, userId).orElseThrow(() -> new RuntimeException("Day not found"));
+  public ActionDTO addAction(Long publicId, Long dayId, LocalDate date, ActionDTO actionDTO) {
+    DayEntity dayEntity = dayRepository.findByIdAndUserId(dayId, publicId).orElseGet(() -> {
+      UserEntity userEntity = userRepository.findById(publicId).orElseThrow(() -> new RuntimeException("User not found"));
+      DayEntity newDay = new DayEntity();
+      newDay.setUser(userEntity);
+      newDay.setDate(date);
+      return dayRepository.save(newDay);
+    });
+
     ActionEntity actionEntity = actionDTO.toEntity();
     actionEntity.setDay(dayEntity);
-    return new ActionDTO(actionRepository.save(actionEntity));
+    ActionEntity savedAction = actionRepository.save(actionEntity);
+
+    return new ActionDTO(savedAction);
   }
 
   public Optional<ActionDTO> updateAction(Long userId, Long dayId, Long actionId, ActionDTO actionDTO) {
