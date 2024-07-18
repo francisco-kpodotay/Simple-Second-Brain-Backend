@@ -9,6 +9,7 @@ import com.francisco.brain.entity.UserEntity;
 import com.francisco.brain.repository.ActionRepository;
 import com.francisco.brain.repository.DayRepository;
 import com.francisco.brain.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,12 +30,13 @@ public class DayService {
     this.actionRepository = actionRepository;
   }
 
-  public List<DayDTO> getDaysInRange(Long userId, LocalDate startDate, LocalDate endDate) {
+  public List<DayDTO> getDaysInRange(String publicId, LocalDate startDate, LocalDate endDate) {
+    UserEntity userEntity = userRepository.findByPublicId(publicId).orElseThrow(() -> new RuntimeException("User not found"));
     List<DayDTO> days = new ArrayList<>();
     LocalDate currentDate = startDate;
 
     while (!currentDate.isAfter(endDate)) {
-      Optional<DayEntity> dayEntity = dayRepository.findByUserIdAndDate(userId, currentDate);
+      Optional<DayEntity> dayEntity = dayRepository.findByUserIdAndDate(userEntity.getId(), currentDate);
       days.add(dayEntity.map(DayDTO::new).orElse(null));
       currentDate = currentDate.plusDays(1);
     }
@@ -59,18 +61,37 @@ public class DayService {
     return new ActionDTO(savedAction);
   }
 
-  public Optional<ActionDTO> updateAction(Long userId, Long dayId, Long actionId, ActionDTO actionDTO) {
-    return actionRepository.findByIdAndDayId(actionId, dayId).map(action -> {
-      action.setName(actionDTO.getName());
-      action.setComplete(actionDTO.isComplete());
-      return new ActionDTO(actionRepository.save(action));
-    });
+  public Optional<ActionDTO> updateAction(String publicId, Long dayId, Long actionId, ActionDTO actionDTO) {
+    ActionEntity actionEntity = getActionEntity(publicId, dayId, actionId);
+
+    actionEntity.setName(actionDTO.getName());
+    actionEntity.setComplete(actionDTO.isComplete());
+
+    ActionEntity updatedAction = actionRepository.save(actionEntity);
+    return Optional.of(new ActionDTO(updatedAction));
   }
 
-  public boolean deleteAction(Long userId, Long dayId, Long actionId) {
-    return actionRepository.findByIdAndDayId(actionId, dayId).map(action -> {
-      actionRepository.delete(action);
-      return true;
-    }).orElse(false);
+  @Transactional
+  public boolean deleteAction(String publicId, Long dayId, Long actionId) {
+    ActionEntity actionEntity = getActionEntity(publicId, dayId, actionId);
+
+    //TO-DO
+    actionRepository.myDeleteById(actionEntity.getId());
+    return true;
+  }
+
+  private ActionEntity getActionEntity(String publicId, Long dayId, Long actionId) {
+    UserEntity userEntity = userRepository.findByPublicId(publicId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    DayEntity dayEntity = userEntity.getDays().stream()
+            .filter(day -> day.getId().equals(dayId))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Day not found for the user"));
+
+    return dayEntity.getActions().stream()
+            .filter(action -> action.getId().equals(actionId))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Action not found for the day"));
   }
 }

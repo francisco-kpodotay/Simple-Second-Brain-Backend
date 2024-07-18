@@ -26,10 +26,10 @@ public class DayController {
   // Get DayEntities within a given range of dates
   @GetMapping()
   public ResponseEntity<List<DayDTO>> getDaysInRange(
-          @PathVariable Long publicId,
-          @RequestParam LocalDate startDate,
-          @RequestParam LocalDate endDate) {
-    List<DayDTO> days = dayService.getDaysInRange(publicId, startDate, endDate);
+          @PathVariable String publicId,
+          @RequestParam LocalDate start,
+          @RequestParam LocalDate end) {
+    List<DayDTO> days = dayService.getDaysInRange(publicId, start, end);
     return new ResponseEntity<>(days, HttpStatus.OK);
   }
 
@@ -48,7 +48,7 @@ public class DayController {
   // Update an action
   @PutMapping("/{dayId}/{actionId}")
   public ResponseEntity<ActionDTO> updateAction(
-          @PathVariable Long publicId,
+          @PathVariable String publicId,
           @PathVariable Long dayId,
           @PathVariable Long actionId,
           @RequestBody ActionDTO actionDTO) {
@@ -60,7 +60,7 @@ public class DayController {
   // Delete an action
   @DeleteMapping("/{dayId}/{actionId}")
   public ResponseEntity<Void> deleteAction(
-          @PathVariable Long publicId,
+          @PathVariable String publicId,
           @PathVariable Long dayId,
           @PathVariable Long actionId) {
     boolean isDeleted = dayService.deleteAction(publicId, dayId, actionId);

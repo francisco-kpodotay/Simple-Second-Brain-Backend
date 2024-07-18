@@ -15,7 +15,7 @@ public class ActionEntity {
   private String name;
   private boolean complete;
 
-  @ManyToOne
-  @JoinColumn(name = "day_id")
+  @ManyToOne()
+  //@JoinColumn(name = "day_id")
   private DayEntity day;
 }
