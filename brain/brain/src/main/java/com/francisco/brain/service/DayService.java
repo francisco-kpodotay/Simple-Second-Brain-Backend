@@ -47,7 +47,6 @@ public class DayService {
   public ActionDTO addAction(String publicId, LocalDate date, NewActionDTO actionDTO) {
     UserEntity userEntity = userRepository.findByPublicId(publicId).orElseThrow(() -> new RuntimeException("User not found"));
     DayEntity dayEntity = dayRepository.findByDateAndUserId(date, userEntity.getId()).orElseGet(() -> {
-      //UserEntity userEntity = userRepository.findByPublicId(publicId).orElseThrow(() -> new RuntimeException("User not found"));
       DayEntity newDay = new DayEntity();
       newDay.setUser(userEntity);
       newDay.setDate(date);

@@ -15,10 +15,9 @@ public class DayEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  @Column(unique = true, nullable = false)
+  @Column(nullable = false)
   private LocalDate date;
   @ManyToOne
-  //@JoinColumn(name = "user_id")
   private UserEntity user;
 
   @OneToMany(mappedBy = "day", cascade = CascadeType.ALL, orphanRemoval = true)

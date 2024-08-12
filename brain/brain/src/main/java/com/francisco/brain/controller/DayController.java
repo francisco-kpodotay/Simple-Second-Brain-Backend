@@ -39,8 +39,6 @@ public class DayController {
           @PathVariable String publicId,
           @RequestParam LocalDate date,
           @RequestBody NewActionDTO newActionDTO) {
-    System.out.println("add action: ");
-    System.out.println(date.toString());
     ActionDTO createdAction = dayService.addAction(publicId, date, newActionDTO);
     return new ResponseEntity<>(createdAction, HttpStatus.CREATED);
   }
